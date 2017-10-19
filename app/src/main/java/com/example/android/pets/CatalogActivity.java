@@ -96,7 +96,7 @@ public class CatalogActivity extends AppCompatActivity {
         values.put(PetEntry.COLUMN_PET_BREED, "Terrier");
         values.put(PetEntry.COLUMN_PET_GENDER, PetEntry.GENDER_MALE);
         values.put(PetEntry.COLUMN_PET_WEIGHT, 7);
-        // Insert values into db get the id of the inserted value 
+        // Insert values into db get the id of the inserted value
         long newRowId = db.insert(PetEntry.TABLE_NAME, null, values);
         Log.i("CatalogActivity", " " + newRowId );
     }
@@ -116,5 +116,15 @@ public class CatalogActivity extends AppCompatActivity {
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    /**
+     * this will be called when the class again starts
+     * meaning we can update the row count here
+     */
+    @Override
+    protected void onStart() {
+        super.onStart();
+        displayDatabaseInfo();
     }
 }
