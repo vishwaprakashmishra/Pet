@@ -9,6 +9,13 @@ import android.provider.BaseColumns;
  */
 
 public final class PetContract {
+    /** Content Authority */
+    public static final String CONTENT_AUTHORITY = "com.example.android.pets";
+    /** Base content URI */
+    public static final Uri BASE_CONTENT_URI =  Uri.parse("content://" + CONTENT_AUTHORITY);
+    /**PATH OF THE TABLE */
+    public static final String PATH_PETS = "pets";
+
     // To prevent prevent someone
     // from instantiating the
     // Contract class
@@ -17,6 +24,10 @@ public final class PetContract {
 
     /* Inner class that defines the table contents */
     public static final class PetEntry implements BaseColumns{
+
+        /** Complete CONTENT_URI  to access the pets data in the table */
+        public  static final Uri CONTENT_URI = Uri.withAppendedPath(BASE_CONTENT_URI, PATH_PETS);
+
         /** Name of the database table for pets */
         public static final String TABLE_NAME = "pets";
 

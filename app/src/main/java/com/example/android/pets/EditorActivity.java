@@ -17,6 +17,7 @@ package com.example.android.pets;
 
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
@@ -151,7 +152,6 @@ public class EditorActivity extends AppCompatActivity {
     }
     void insertPet() {
 
-        SQLiteDatabase db = mDbHelper.getWritableDatabase();
         // get name in string
         String nameString = mNameEditText.getText().toString().trim();
         // get breed in string
@@ -161,7 +161,13 @@ public class EditorActivity extends AppCompatActivity {
         // convert the mGender
         int genderInteger = mGender;
         // Convert the string weight to integer
-        int weightInteger = Integer.parseInt(weightString);
+        int weightInteger = -1;
+        try {
+            weightInteger = Integer.parseInt(weightString);
+        } catch (NumberFormatException e ) {
+            Log.i("EditorActivity", "There is number format exception by weight integer ");
+            return ;
+        }
         // Getting values{ @link ContentValues} and adding some values to it
         ContentValues values = new ContentValues();
         values.put(PetEntry.COLUMN_PET_NAME, nameString);
@@ -169,11 +175,15 @@ public class EditorActivity extends AppCompatActivity {
         values.put(PetEntry.COLUMN_PET_WEIGHT, weightInteger);
         values.put(PetEntry.COLUMN_PET_GENDER, genderInteger);
         // inserting values that will return the row id of -1( error in insertion )
-        long newRowId = db.insert(PetEntry.TABLE_NAME,null, values);
+        Uri newRowId = getContentResolver().insert(PetEntry.CONTENT_URI, values);
+        Log.i("EditorAcitivity", " " + parseInt(newRowId.toString()) );
+        int newRow = parseInt(newRowId.toString());
+       /**
         if ( newRowId == -1 ) {
             Toast.makeText(this, "Error with saving pet", Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(this, "Pet saved with id :" + newRowId, Toast.LENGTH_SHORT).show();
         }
+        */
     }
 }
