@@ -150,8 +150,11 @@ public class CatalogActivity extends AppCompatActivity {
         values.put(PetEntry.COLUMN_PET_GENDER, PetEntry.GENDER_MALE);
         values.put(PetEntry.COLUMN_PET_WEIGHT, 7);
         // Insert values into db get the id of the inserted value
+        // Use the {@link PetEntry#CONTENT_URI} to indicate that we want to insert
+        // into the pets database table.
+        // Receive the new content URI that will allow us to access Toto's data in the future
+
         Uri newRowId = getContentResolver().insert(PetEntry.CONTENT_URI,values);
-        Log.i("CatalogActivity", " " + newRowId );
     }
 
     @Override

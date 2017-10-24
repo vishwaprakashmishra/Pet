@@ -109,9 +109,19 @@ public class PetProvider extends ContentProvider {
     private Uri insertPet(Uri uri, ContentValues values) {
 
         SQLiteDatabase db = mDbHealper.getWritableDatabase();
+
+        // check that the name is not null
+        String name = values.getAsString(PetEntry.COLUMN_PET_NAME);
+        if( name == null) {
+            throw new IllegalArgumentException("Pet requires a name");
+        }
         long id = db.insert(PetEntry.TABLE_NAME,null, values);
         // Once we know the ID of the new row in the table,
         // return the new URI with the ID appended to the end of it
+        if( id == -1 ){
+            Log.e(LOG_TAG,"Failed to insert row for " + uri);
+            return null;
+        }
         return ContentUris.withAppendedId(uri, id);
     }
     /**
