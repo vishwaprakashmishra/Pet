@@ -190,7 +190,6 @@ public class PetProvider extends ContentProvider {
                           ContentValues values,
                           String selection,
                           String[] selectionArgs){
-        // TODO: UPDATE the selected pets in the pets database table with the given ContentValues object
         //  validating all the entry to be inserted */
         // validating the pet name
         if( values.containsKey(PetEntry.COLUMN_PET_NAME)){

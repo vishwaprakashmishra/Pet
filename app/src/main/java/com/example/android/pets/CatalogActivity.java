@@ -33,12 +33,12 @@ import android.widget.TextView;
 import com.example.android.pets.data.PetContract.PetEntry;
 import com.example.android.pets.data.PetDbHelper;
 
-import static com.example.android.pets.R.id.text_view_pet;
 
 /**
  * Displays list of pets that were entered and stored in the app.
  */
 public class CatalogActivity extends AppCompatActivity {
+    private static final String LOG_TAG = CatalogActivity.class.getSimpleName();
     // database algorithm class
     private PetDbHelper mDbHelper;
 
@@ -56,7 +56,15 @@ public class CatalogActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+        // Creating instance for PetDbHelper for using getReadableDatabase and
+        // getWritableDatabase function
         mDbHelper = new PetDbHelper(this);
+        // Find the ListView which will be populated with the pet data
+        ListView petListView = (ListView) findViewById(R.id.list);
+        // Find and set empty view on the ListView, so that it only shows when the
+        // list has 0 items.
+        View emptyView = findViewById(R.id.empty_view);
+        petListView.setEmptyView(emptyView);
         displayDatabaseInfo();
     }
 
@@ -76,23 +84,27 @@ public class CatalogActivity extends AppCompatActivity {
                 null,
                 null,
                 null);
+        Log.i("CatalogActivity", "loaded the cursor successfully");
+        if( cursor == null ) {
+
+            return;
+
+        }
         // Find the ListView which will be populated with the pet data
+        Log.i("CatalogActivity", "checked if cursor is null");
 
         ListView petListView = (ListView) findViewById(R.id.list);
+
         // Setup an Adapter to create a list item for each row of pet
         // data in the cursor.
         PetCursorAdapter adapter = new PetCursorAdapter(this, cursor);
-        // Attach the adapter to the ListView
-        // petListView.setAdapter(adapter);
+        Log.i("CatalogActivity", "executed code for binding the listview and cursor");
 
-        // Always close the cursor when you're done reading from it This
-        // releases all its
-        // resources and makes it invalid.
-        try {
-            cursor.close();
-        } catch (NullPointerException e) {
-            Log.e("CatalogActivity", e.toString());
-        }
+        // Attach the adapter to the ListView
+        // Adapter manages the closing of the adapter
+        petListView.setAdapter(adapter);
+
+
     }
 
     @Override
