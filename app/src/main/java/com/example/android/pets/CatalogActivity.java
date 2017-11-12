@@ -1,34 +1,23 @@
-/*
- * Copyright (C) 2016 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.example.android.pets;
 
 import android.content.ContentValues;
+import android.content.CursorLoader;
 import android.content.Intent;
+import android.content.Loader;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
+import android.app.LoaderManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import com.example.android.pets.data.PetContract.PetEntry;
 import com.example.android.pets.data.PetDbHelper;
@@ -37,10 +26,15 @@ import com.example.android.pets.data.PetDbHelper;
 /**
  * Displays list of pets that were entered and stored in the app.
  */
-public class CatalogActivity extends AppCompatActivity {
+@RequiresApi(api = Build.VERSION_CODES.HONEYCOMB)
+public class CatalogActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
     private static final String LOG_TAG = CatalogActivity.class.getSimpleName();
     // database algorithm class
     private PetDbHelper mDbHelper;
+
+    // Adapter for the cursor
+    private PetCursorAdapter mAdapter;
+    private static final int PET_LOADER_ID = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,12 +59,13 @@ public class CatalogActivity extends AppCompatActivity {
         // list has 0 items.
         View emptyView = findViewById(R.id.empty_view);
         petListView.setEmptyView(emptyView);
-        displayDatabaseInfo();
+
+        LoaderManager loaderManager = getLoaderManager();
+        // initialize loaderManager with the callback as this class
+        loaderManager.initLoader(PET_LOADER_ID,null,this);
     }
 
     private void displayDatabaseInfo() {
-        // Create and/ or open a database to read from it
-        SQLiteDatabase db = mDbHelper.getReadableDatabase();
         // Perform this raw SQL query " SELECT * FROM pets"
         // to get a Cursor that contains all rows from the pets table.
         String[] columns = {PetEntry._ID,
@@ -90,9 +85,8 @@ public class CatalogActivity extends AppCompatActivity {
             return;
 
         }
-        // Find the ListView which will be populated with the pet data
-        Log.i("CatalogActivity", "checked if cursor is null");
 
+        // Find the ListView which will be populated with the pet data
         ListView petListView = (ListView) findViewById(R.id.list);
 
         // Setup an Adapter to create a list item for each row of pet
@@ -138,7 +132,6 @@ public class CatalogActivity extends AppCompatActivity {
             // Respond to a click on the "Insert dummy data" menu option
             case R.id.action_insert_dummy_data:
                 insertPet();
-                displayDatabaseInfo();
                 return true;
             // Respond to a click on the "Delete all entries" menu option
             case R.id.action_delete_all_entries:
@@ -156,5 +149,43 @@ public class CatalogActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         displayDatabaseInfo();
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
+        // TODO: initialize all the element needed to query the data from the
+
+        // ass the projection from pets table
+        // reduced to only two rows which required for
+        // improving the performance
+        String[] columns = {PetEntry._ID,
+                PetEntry.COLUMN_PET_NAME,
+                PetEntry.COLUMN_PET_BREED};
+        return new CursorLoader(this,
+                PetEntry.CONTENT_URI,
+                columns, null, null, null);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        // find the list view which will be populated with
+        // the pet data
+        ListView petListView = (ListView) findViewById(R.id.list);
+
+        // setting the content of cursor with the PetCursorAdapter
+        mAdapter = new PetCursorAdapter(this, cursor);
+        petListView.setAdapter(mAdapter);
+        petListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                // TODO: HANDLE onItemClick of the list item;
+            }
+        });
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        // TODO ; destroy the cursor for regaining memory
+        loader.reset();
     }
 }

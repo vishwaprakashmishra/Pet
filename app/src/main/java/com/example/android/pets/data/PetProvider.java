@@ -79,6 +79,10 @@ public class PetProvider extends ContentProvider {
                 throw new IllegalArgumentException("Cannot query unknown " + uri ) ;
 
         }
+        // Set notification URI on the cursor.
+        // so we know that content URI the Cursor was created for.
+        // If the data at this URI changes, then we know we need to update the Cursor.
+        cursor.setNotificationUri(getContext().getContentResolver(), uri);
         return cursor;
     }
 
@@ -138,6 +142,9 @@ public class PetProvider extends ContentProvider {
             Log.e(LOG_TAG,"Failed to insert row for " + uri);
             return null;
         }
+
+        // Notify all listeners that the data has changed for the pet containers
+        getContext().getContentResolver().notifyChange(uri,null);
         return ContentUris.withAppendedId(uri, id);
     }
     /**
